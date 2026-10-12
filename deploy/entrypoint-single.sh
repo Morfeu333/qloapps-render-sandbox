@@ -7,6 +7,7 @@ set -eu
 mkdir -p /var/run/mysqld /var/lib/qloapps /var/www/html
 chown -R mysql:mysql /var/run/mysqld
 htpasswd -bcB /var/lib/qloapps/.htpasswd "$SANDBOX_USER" "$SANDBOX_PASSWORD"
+chown root:www-data /var/lib/qloapps/.htpasswd
 chmod 0640 /var/lib/qloapps/.htpasswd
 
 # Render Free has an ephemeral filesystem, so this is strictly demonstration data.
@@ -18,11 +19,11 @@ until mysqladmin ping --silent; do
     sleep 1
 done
 mysql -u root <<'SQL'
-CREATE DATABASE IF NOT EXISTS qloapps CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS deckvilla_sandbox CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'qloapps'@'localhost' IDENTIFIED BY '';
 CREATE USER IF NOT EXISTS 'qloapps'@'127.0.0.1' IDENTIFIED BY '';
-GRANT ALL PRIVILEGES ON qloapps.* TO 'qloapps'@'localhost';
-GRANT ALL PRIVILEGES ON qloapps.* TO 'qloapps'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON deckvilla_sandbox.* TO 'qloapps'@'localhost';
+GRANT ALL PRIVILEGES ON deckvilla_sandbox.* TO 'qloapps'@'127.0.0.1';
 FLUSH PRIVILEGES;
 SQL
 
