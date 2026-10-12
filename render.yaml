@@ -1,0 +1,51 @@
+services:
+  - type: pserv
+    name: qloapps-db
+    runtime: image
+    image:
+      url: docker.io/library/mysql:8.0
+    plan: starter
+    region: ohio
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 10
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: qloapps
+      - key: MYSQL_USER
+        value: qloapps
+      - key: MYSQL_PASSWORD
+        generateValue: true
+
+  - type: web
+    name: qloapps-sandbox
+    runtime: docker
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    plan: starter
+    region: ohio
+    healthCheckPath: /
+    disk:
+      name: qloapps-state
+      mountPath: /var/lib/qloapps
+      sizeGB: 1
+    envVars:
+      - key: QLOAPPS_DB_HOST
+        fromService:
+          type: pserv
+          name: qloapps-db
+          property: host
+      - key: QLOAPPS_DB_PORT
+        value: "3306"
+      - key: QLOAPPS_DB_NAME
+        value: qloapps
+      - key: QLOAPPS_DB_USER
+        value: qloapps
+      - key: QLOAPPS_DB_PASSWORD
+        fromService:
+          type: pserv
+          name: qloapps-db
+          envVarKey: MYSQL_PASSWORD
